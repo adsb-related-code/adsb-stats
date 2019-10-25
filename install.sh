@@ -2,8 +2,9 @@
 
 set -e
 
-# requires uuidgen
-apt-get -y install uuid-runtime
+# requires uuidgen curl
+sudo apt-get update
+sudo apt-get install -y curl uuid-runtime
 
 #copy the service file
 cp adsbexchange-stats.service /etc/systemd/system/adsbexchange-stats.service
