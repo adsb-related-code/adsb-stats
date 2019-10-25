@@ -1,0 +1,78 @@
+#!/bin/bash
+#
+# send dumpo1090 json to local or remote server for processing
+#
+# dump1090-mutability
+#
+# sleep 240
+# adsbexchange data collection
+#
+REMOTE_URL="https://adsbexchange.com/api/receive/"
+
+# dump1090-fa /run/dump1090-fa/
+# adsbx /run/dump1090-mutability/
+ADSBX_JSON="/run/dump1090-mutability/"
+FA_JSON="/run/dump1090-fa/"
+
+if [ -s $ADSBX_JSON ]; then
+  JSON=$ADSBX_JSON
+fi
+
+if [ -s $FA_JSON ]; then
+  JSON=$FA_JSON
+fi
+
+if [ -z "$JSON" ]; then
+  exit 0
+fi
+
+# uuid to identify feeder
+UUID_FILE="/boot/adsbx-uuid"
+
+if [ -s $UUID_FILE ]; then
+        UUID=$(cat $UUID_FILE)
+        if [[ $UUID =~ ^\{?[A-F0-9a-f]{8}-[A-F0-9a-f]{4}-[A-F0-9a-f]{4}-[A-F0-9a-f]{4}-[A-F0-9a-f]{12}\}?$ ]]; then
+                echo '1'
+        else
+                rm -f $UUID_FILE
+                UUID=$(uuidgen -t)
+                echo $UUID > $UUID_FILE
+        fi
+else
+        UUID=$(uuidgen -t)
+        echo $UUID > $UUID_FILE
+fi
+
+#echo -e "starting dump1090 stats watcher"
+
+inotifywait -q -m -e moved_to $JSON |
+while read -r filename action file; do
+  # echo -e "triggered event "$action $file
+  # copy aircraft.json then get ready to do work
+
+ if [ $file = "aircraft.json" ]; then
+  if [ $action = "MOVED_TO" ]; then
+ #echo $file ' ' $action 
+ RAND=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c10)
+  FILE_RAND="json-"$RAND
+
+  cp $JSON/aircraft.json /tmp/$FILE_RAND
+  #echo -e "copied "$FILE_RAND
+
+  #echo -e "data sent compressed"
+  #cat /tmp/$FILE_RAND | gzip | curl -s -o /dev/null -X POST -H "Content_Encoding: gzip" --data-binary @- $REMOTE_URL
+
+  UUID=$(cat $UUID_FILE)
+  echo '{"uuid":"'$UUID'",' > /tmp/$FILE_RAND'x'
+  echo '"aircraft":' >> /tmp/$FILE_RAND'x'
+  jq '.aircraft' /tmp/$FILE_RAND >> /tmp/$FILE_RAND'x'
+  echo '}' >> /tmp/$FILE_RAND'x'
+
+  cat /tmp/$FILE_RAND'x' | gzip | curl -X POST -H "Content_Encoding: gzip" --data-binary @- $REMOTE_URL
+
+  #echo -e "clean up "$FILE_RAND
+  rm /tmp/$FILE_RAND
+  rm /tmp/$FILE_RAND'x'
+  fi
+ fi
+done
