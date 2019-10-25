@@ -2,11 +2,7 @@
 #
 # send dumpo1090 json to local or remote server for processing
 #
-# dump1090-mutability
-#
-# sleep 240
-# adsbexchange data collection
-#
+
 REMOTE_URL="https://adsbexchange.com/api/receive/"
 
 # dump1090-fa /run/dump1090-fa/
@@ -22,13 +18,14 @@ if [ -s $FA_JSON ]; then
   JSON=$FA_JSON
 fi
 
+# no directories just bail
 if [ -z "$JSON" ]; then
-  exit 0
+  exit 2
 fi
 
-# uuid to identify feeder
+# uuid
 UUID_FILE="/boot/adsbx-uuid"
-
+# look for uuid - if invalid or missing genrate one
 if [ -s $UUID_FILE ]; then
         UUID=$(cat $UUID_FILE)
         if [[ $UUID =~ ^\{?[A-F0-9a-f]{8}-[A-F0-9a-f]{4}-[A-F0-9a-f]{4}-[A-F0-9a-f]{4}-[A-F0-9a-f]{12}\}?$ ]]; then
@@ -43,7 +40,7 @@ else
         echo $UUID > $UUID_FILE
 fi
 
-#echo -e "starting dump1090 stats watcher"
+# echo -e "starting dump1090 stats watcher"
 
 inotifywait -q -m -e moved_to $JSON |
 while read -r filename action file; do
@@ -52,15 +49,15 @@ while read -r filename action file; do
 
  if [ $file = "aircraft.json" ]; then
   if [ $action = "MOVED_TO" ]; then
- #echo $file ' ' $action 
+ # echo $file ' ' $action 
  RAND=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c10)
   FILE_RAND="json-"$RAND
 
   cp $JSON/aircraft.json /tmp/$FILE_RAND
-  #echo -e "copied "$FILE_RAND
+  # echo -e "copied "$FILE_RAND
 
-  #echo -e "data sent compressed"
-  #cat /tmp/$FILE_RAND | gzip | curl -s -o /dev/null -X POST -H "Content_Encoding: gzip" --data-binary @- $REMOTE_URL
+  # echo -e "data sent compressed"
+   #cat /tmp/$FILE_RAND | gzip | curl -s -o /dev/null -X POST -H "Content_Encoding: gzip" --data-binary @- $REMOTE_URL
 
   UUID=$(cat $UUID_FILE)
   echo '{"uuid":"'$UUID'",' > /tmp/$FILE_RAND'x'
@@ -70,7 +67,8 @@ while read -r filename action file; do
 
   cat /tmp/$FILE_RAND'x' | gzip | curl -X POST -H "Content_Encoding: gzip" --data-binary @- $REMOTE_URL
 
-  #echo -e "clean up "$FILE_RAND
+  # clean up the tmp files created
+  # echo -e "clean up "$FILE_RAND
   rm /tmp/$FILE_RAND
   rm /tmp/$FILE_RAND'x'
   fi
