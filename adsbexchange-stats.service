@@ -1,0 +1,15 @@
+[Unit]
+Description=ADSBexchange Stats
+After=adsbexchange-go.service
+
+[Service]
+Type=forking
+ExecStart=/home/pi/adsbexchange/json-status 2>&1 >> /dev/null &
+WorkingDirectory=/tmp/
+StandardOutput=inherit
+StandardError=inherit
+Restart=always
+User=root
+
+[Install]
+WantedBy=multi-user.target
