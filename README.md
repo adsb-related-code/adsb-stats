@@ -31,6 +31,6 @@ sudo systemctl restart adsbexchange-stats
 
 BETA URL:
 
-Replace <your-uuid> with adsbx stats generated uuid.
+Replace your-uuid with adsbx stats generated uuid.
 
-https://www.adsbexchange.com/api/feeders/?feed=<your-uuid>
+https://www.adsbexchange.com/api/feeders/?feed=your-uuid
