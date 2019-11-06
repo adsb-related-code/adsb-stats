@@ -15,12 +15,15 @@ Stats only.  Be sure to install ADSBexchange.com feeder package first.
 
 THEN
 
+    cd /home/pi
     git clone https://github.com/adsbxchange/adsbexchange-stats.git
     cd adsbexchange-stats
     chmod +x install.sh
     sudo ./install.sh
     
 **After completing the setup do not delete this repository.**
+
+Script assume location of json-status in .service file.  Change as needed to suit your install location.
 
 ### Systemd Status
 sudo systemctl status adsbexchange-stats
