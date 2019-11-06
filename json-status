@@ -29,8 +29,9 @@ UUID_FILE="/boot/adsbx-uuid"
 if [ -s $UUID_FILE ]; then
         UUID=$(cat $UUID_FILE)
         if [[ $UUID =~ ^\{?[A-F0-9a-f]{8}-[A-F0-9a-f]{4}-[A-F0-9a-f]{4}-[A-F0-9a-f]{4}-[A-F0-9a-f]{12}\}?$ ]]; then
-                echo '1'
+                # valid - do nothing - move on
         else
+                # invalid - remove and regenerate
                 rm -f $UUID_FILE
                 UUID=$(uuidgen -t)
                 echo $UUID > $UUID_FILE
