@@ -6,6 +6,9 @@ set -e
 sudo apt-get update
 sudo apt-get install -y curl uuid-runtime jq inotify-tools gzip
 
+#copy to /usr/bin
+sudo cp json-status /usr/bin/json-status
+
 # create uuid
 UUID_FILE="/boot/adsbx-uuid"
 # look for uuid - if invalid or missing genrate one
