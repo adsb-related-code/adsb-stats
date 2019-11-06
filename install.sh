@@ -8,6 +8,7 @@ apt-get install -y curl uuid-runtime jq inotify-tools gzip
 
 #copy to /usr/bin
 cp json-status /usr/bin/json-status
+chmod +x /usr/bin/json-status
 
 # create uuid
 UUID_FILE="/boot/adsbx-uuid"
