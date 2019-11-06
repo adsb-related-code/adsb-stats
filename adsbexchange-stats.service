@@ -4,7 +4,7 @@ After=adsbexchange-go.service
 
 [Service]
 Type=forking
-ExecStart=/home/pi/adsbexchange/adsbexchange-stats/json-status 2>&1 >> /dev/null &
+ExecStart=/bin/bash /home/pi/adsbexchange/adsbexchange-stats/json-status 2>&1 >> /dev/null &
 WorkingDirectory=/tmp/
 StandardOutput=inherit
 StandardError=inherit
