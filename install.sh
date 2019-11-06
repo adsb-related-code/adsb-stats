@@ -3,11 +3,11 @@
 set -e
 
 # requires uuidgen curl
-sudo apt-get update
-sudo apt-get install -y curl uuid-runtime jq inotify-tools gzip
+apt-get update
+apt-get install -y curl uuid-runtime jq inotify-tools gzip
 
 #copy to /usr/bin
-sudo cp json-status /usr/bin/json-status
+cp json-status /usr/bin/json-status
 
 # create uuid
 UUID_FILE="/boot/adsbx-uuid"
