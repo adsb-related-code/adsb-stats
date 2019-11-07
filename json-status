@@ -37,6 +37,7 @@ if [ -s $UUID_FILE ]; then
                 echo $UUID > $UUID_FILE
         fi
 else
+        #not found generate uuid and write
         UUID=$(uuidgen -t)
         echo $UUID > $UUID_FILE
 fi
