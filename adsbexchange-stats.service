@@ -3,7 +3,7 @@ Description=ADSBexchange Stats
 After=adsbexchange-go.service
 
 [Service]
-Type=simpled
+Type=simple
 ExecStart=/usr/bin/json-status
 WorkingDirectory=/tmp/
 StandardOutput=inherit
