@@ -20,7 +20,8 @@ fi
 
 # no directories just bail
 if [ -z "$JSON" ]; then
-  exit 2
+  echo "No Valid Directories Found. Exiting ..."
+  exit 3
 fi
 
 # uuid
