@@ -52,8 +52,8 @@ while read -r filename action file; do
 
  if [ $file = "aircraft.json" ]; then
   if [ $action = "MOVED_TO" ]; then
- # echo $file ' ' $action 
- RAND=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c10)
+  # echo $file ' ' $action 
+  RAND=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c10)
   FILE_RAND="json-"$RAND
 
   cp $JSON/aircraft.json /tmp/$FILE_RAND
