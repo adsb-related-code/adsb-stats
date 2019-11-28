@@ -5,7 +5,7 @@ After=adsbexchange-go.service
 [Service]
 Type=simple
 ExecStart=/usr/bin/json-status
-WorkingDirectory=/tmp/
+WorkingDirectory=/var/run
 StandardOutput=inherit
 StandardError=inherit
 Restart=on-failure
