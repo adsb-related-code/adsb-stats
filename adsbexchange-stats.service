@@ -8,7 +8,7 @@ ExecStart=/usr/bin/json-status
 WorkingDirectory=/var/run
 StandardOutput=inherit
 StandardError=inherit
-Restart=on-failure
+Restart=always
 RestartSec=30
 User=root
 
