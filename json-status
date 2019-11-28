@@ -66,7 +66,7 @@ while read -r filename action file; do
   jq '.aircraft' /var/run/$FILE_RAND >> /tmp/$FILE_RAND'x'
   echo '}' >> /var/run/$FILE_RAND'x'
 
-  cat /var/run/$FILE_RAND'x' | gzip | curl -s -X POST -H "Content_Encoding: gzip" --data-binary @- $REMOTE_URL || true
+  $(cat /var/run/$FILE_RAND'x' | gzip | curl -s -X POST -H "Content_Encoding: gzip" --data-binary @- $REMOTE_URL) || true
 
   # clean up the tmp files created
   # echo -e "clean up "$FILE_RAND
