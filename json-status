@@ -54,25 +54,25 @@ while read -r filename action file; do
   RAND=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c10)
   FILE_RAND="json-"$RAND
 
-  cp $JSON/aircraft.json /tmp/$FILE_RAND
+  cp $JSON/aircraft.json /var/run/$FILE_RAND
   # echo -e "copied "$FILE_RAND
 
   # echo -e "data sent compressed"
    #cat /tmp/$FILE_RAND | gzip | curl -s -o /dev/null -X POST -H "Content_Encoding: gzip" --data-binary @- $REMOTE_URL
 
   UUID=$(cat $UUID_FILE)
-  echo '{"uuid":"'$UUID'",' > /tmp/$FILE_RAND'x'
-  echo '"aircraft":' >> /tmp/$FILE_RAND'x'
-  jq '.aircraft' /tmp/$FILE_RAND >> /tmp/$FILE_RAND'x'
-  echo '}' >> /tmp/$FILE_RAND'x'
+  echo '{"uuid":"'$UUID'",' > /var/run/$FILE_RAND'x'
+  echo '"aircraft":' >> /var/run/$FILE_RAND'x'
+  jq '.aircraft' /var/run/$FILE_RAND >> /tmp/$FILE_RAND'x'
+  echo '}' >> /var/run/$FILE_RAND'x'
 
-  cat /tmp/$FILE_RAND'x' | gzip | curl -s -X POST -H "Content_Encoding: gzip" --data-binary @- $REMOTE_URL
+  cat /var/run/$FILE_RAND'x' | gzip | curl -s -X POST -H "Content_Encoding: gzip" --data-binary @- $REMOTE_URL || true
 
   # clean up the tmp files created
   # echo -e "clean up "$FILE_RAND
-  rm /tmp/$FILE_RAND
-  rm /tmp/$FILE_RAND'x'
-  sleep 2
+  rm /var/run/$FILE_RAND
+  rm /var/run/$FILE_RAND'x'
+  sleep 5
   fi
  fi
 done
