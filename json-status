@@ -72,7 +72,7 @@ while read -r filename action file; do
   # echo -e "clean up "$FILE_RAND
   rm /var/run/$FILE_RAND
   rm /var/run/$FILE_RAND'x'
+  sleep 5
    fi
  fi
- sleep 5
 done
