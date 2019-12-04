@@ -63,7 +63,7 @@ while read -r filename action file; do
   UUID=$(cat $UUID_FILE)
   echo '{"uuid":"'$UUID'",' > /var/run/$FILE_RAND'x'
   echo '"aircraft":' >> /var/run/$FILE_RAND'x'
-  jq '.aircraft' /var/run/$FILE_RAND >> /tmp/$FILE_RAND'x'
+  jq '.aircraft' /var/run/$FILE_RAND >> /var/run/$FILE_RAND'x'
   echo '}' >> /var/run/$FILE_RAND'x'
 
   $(cat /var/run/$FILE_RAND'x' | gzip | curl -s -o /dev/null -X POST -H "Content_Encoding: gzip" --data-binary @- $REMOTE_URL) || true
