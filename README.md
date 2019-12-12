@@ -9,6 +9,7 @@ Stats only.  Be sure to install ADSBexchange.com feeder package first.
 
 If you are already feeding ADSBx from a Pi, then skip Step 1 and move right to Step 2.
 Step 1
+
     sudo apt-get install git
     git clone https://github.com/adsbxchange/adsb-exchange.git
     cd adsb-exchange
@@ -17,6 +18,7 @@ Step 1
 
 THEN
 Step 2
+
     cd /home/pi
     git clone https://github.com/adsbxchange/adsbexchange-stats.git
     cd adsbexchange-stats
