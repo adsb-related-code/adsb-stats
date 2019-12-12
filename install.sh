@@ -30,5 +30,11 @@ fi
 #copy the service file
 cp adsbexchange-stats.service /etc/systemd/system/adsbexchange-stats.service
 
+#wait (needed?)
+sleep 2
+
 #enable service
 systemctl enable adsbexchange-stats.service
+
+#start service
+systemctl start adsbexchange-stats.service
