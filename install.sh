@@ -2,7 +2,7 @@
 
 set -e
 
-# requires uuidgen curl
+# requires uuidgen curl jq inotify-tools gzip
 apt-get update
 apt-get install -y curl uuid-runtime jq inotify-tools gzip
 
