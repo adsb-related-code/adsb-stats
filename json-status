@@ -52,9 +52,9 @@ while read -r filename action file; do
   if [ $action = "MOVED_TO" ]; then
   # echo $file ' ' $action 
   RAND=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c10)
-  FILE_RAND="json-"$RAND
+  FILE_RAND="/var/run/json-${RAND}"
 
-  cp $JSON/aircraft.json /var/run/$FILE_RAND
+  cp $JSON/aircraft.json $FILE_RAND
   # echo -e "copied "$FILE_RAND
 
   # echo -e "data sent compressed"
