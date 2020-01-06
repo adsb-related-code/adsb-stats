@@ -7,8 +7,8 @@ REMOTE_URL="https://adsbexchange.com/api/receive/"
 
 # dump1090-fa /run/dump1090-fa/
 # adsbx /run/dump1090-mutability/
-ADSBX_JSON="/run/dump1090-mutability/"
-FA_JSON="/run/dump1090-fa/"
+ADSBX_JSON="/run/dump1090-mutability"
+FA_JSON="/run/dump1090-fa"
 
 if [ -s $ADSBX_JSON ]; then
   JSON=$ADSBX_JSON
