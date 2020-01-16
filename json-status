@@ -7,19 +7,22 @@ REMOTE_URL="https://adsbexchange.com/api/receive/"
 
 # dump1090-fa /run/dump1090-fa/
 # adsbx /run/dump1090-mutability/
-ADSBX_JSON="/run/dump1090-mutability"
-FA_JSON="/run/dump1090-fa"
+JSON_PATHS=( "/run/readsb", "/run/dump1090-mutability", "/run/dump1090-fa" )
+JSON_DIR=""
 
-if [ -s $ADSBX_JSON ]; then
-  JSON=$ADSBX_JSON
-fi
+# Check the paths IN ORDER, preferring the first one we find
 
-if [ -s $FA_JSON ]; then
-  JSON=$FA_JSON
-fi
+for i in ${!JSON_PATHS[@]}; do
+	CHECK=${JSON_PATH[$i]}
+
+	if [ -s $CHECK]; then
+		JSON_DIR=$CHECK
+		break
+	fi
+done
 
 # no directories just bail
-if [ -z "$JSON" ]; then
+if [ "x$JSON_DIR" == "x" ]; then
   echo "No Valid Directories Found. Exiting ..."
   exit 3
 fi
@@ -43,37 +46,40 @@ fi
 
 # echo -e "starting dump1090 stats watcher"
 
-inotifywait -q -m -e moved_to $JSON |
-while read -r filename action file; do
-  # echo -e "triggered event "$action $file
-  # copy aircraft.json then get ready to do work
+JSON_FILE="${JSON_PATH}/aircraft.json"
 
- if [ $file = "aircraft.json" ]; then
-  if [ $action = "MOVED_TO" ]; then
-  # echo $file ' ' $action 
-  RAND=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c10)
-  FILE_RAND="/var/run/json-${RAND}"
-  FILE_RAND_NEW="/var/run/json-${RAND}-new"
+# Grab the current timestamp of the file
+JSON_STAT=$(stat --printf="%Y" $JSON_FILE)
 
-  cp $JSON/aircraft.json $FILE_RAND
-  # echo -e "copied "$FILE_RAND
+# Set this to a number
+NEXT_JSON_READ=1
 
-  # echo -e "data sent compressed"
-   #cat /tmp/$FILE_RAND | gzip | curl -s -o /dev/null -X POST -H "Content_Encoding: gzip" --data-binary @- $REMOTE_URL
+# How long to wait before uploads, minimum (in seconds)
+WAIT_TIME=5
 
-  UUID=$(cat $UUID_FILE)
-  echo '{"uuid":"'$UUID'",' > $FILE_RAND_NEW
-  echo '"aircraft":' >> $FILE_RAND_NEW
-  jq '.aircraft' $FILE_RAND >> $FILE_RAND_NEW
-  echo '}' >> $FILE_RAND_NEW
+while true; do
+	while [ $JSON_STAT -lt $NEXT_JSON_READ ]; do
+		sleep 1
+		JSON_STAT=$(stat --printf="%Y" $JSON_FILE)
+	done
+	# Update this for the next loop
+	NEXT_JSON_READ=$(( JSON_STAT + $WAIT_TIME ))
+
+	# Move the JSON somewhere before operating on it...
+	RAND=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c10)
+	TMPFILE="/var/run/json-${RAND}"
+	NEWFILE="${TMPFILE}-new"
+
+	cp $JSON_FILE $TMPFILE
+
+	echo '{"uuid":"'$UUID'",' > $NEWFILE
+	echo '"aircraft":' >> $NEWFILE
+	jq '.aircraft' $TMPFILE >> $NEWFILE
+	echo '}' >> $NEWFILE
   
-  $(cat $FILE_RAND_NEW | gzip | curl -s -o /dev/null -X POST -H "Content_Encoding: gzip" --data-binary @- $REMOTE_URL) || true
+	$(cat $NEWFILE | gzip | curl -s -o /dev/null -X POST -H "Content_Encoding: gzip" --data-binary @- $REMOTE_URL) || true
 
-  # clean up the tmp files created
-  # echo -e "clean up "$FILE_RAND
-  rm $FILE_RAND
-  rm $FILE_RAND_NEW
-  sleep 5
-   fi
- fi
+	rm $TMPFILE $NEWFILE
+
 done
+
