@@ -10,22 +10,32 @@ JSON_PATHS=( "/run/readsb" "/run/dump1090-mutability" "/run/dump1090-fa" )
 
 JSON_DIR=""
 
-# Check the paths IN ORDER, preferring the first one we find
 
-for i in ${!JSON_PATHS[@]}; do
-	CHECK=${JSON_PATHS[$i]}
+# Do this a few times, in case we're still booting up (wait a bit between checks)
+CHECK_LOOP=0
+while [ "x$JSON_DIR" == "x" ]; do
+	# Check the paths IN ORDER, preferring the first one we find
+	for i in ${!JSON_PATHS[@]}; do
+		CHECK=${JSON_PATHS[$i]}
 
-	if [ -d $CHECK ]; then
-		JSON_DIR=$CHECK
-		break
+		if [ -d $CHECK ]; then
+			JSON_DIR=$CHECK
+			break
+		fi
+	done
+
+	# no directories just bail
+	if [ "x$JSON_DIR" == "x" ]; then
+		CHECK_LOOP=$(( CHECK_LOOP + 1 ))
+		if [ $CHECK_LOOP -gt 4 ]; then
+			# Bad news.  Complain and exit.
+			echo "Tried multiple times, could not find any of the directories - ABORTING!"
+			exit 10
+		fi
+		echo "No Valid Directories Found.  Waiting a bit before next check..."
+		sleep 20
 	fi
 done
-
-# no directories just bail
-if [ "x$JSON_DIR" == "x" ]; then
-  echo "No Valid Directories Found. Exiting ..."
-  exit 3
-fi
 
 # uuid
 UUID_FILE="/boot/adsbx-uuid"
@@ -47,8 +57,24 @@ fi
 
 JSON_FILE="${JSON_DIR}/aircraft.json"
 
-# Grab the current timestamp of the file
-JSON_STAT=$(stat --printf="%Y" $JSON_FILE)
+STAT_COUNT=0
+# Grab the current timestamp of the file.   Try in a loop a few times, in case
+while [ $STAT_COUNT -lt 5 ]; do
+	JSON_STAT=$(stat --printf="%Y" $JSON_FILE 2> /dev/null)
+	RV=$?
+
+	if [ $RV -eq 0 ];
+		break;
+	fi
+	STAT_COUNT=$(( STAT_COUNT + 1 ))
+	sleep 5
+done
+
+# Bad juju if we still don't have a stat...
+if [ "x$JSON_STAT" == "x" ]; then
+	echo "Can't seem to stat $JSON_FILE for the first time, bailing out..."
+	exit 15
+fi
 
 # Set this to a number
 NEXT_JSON_READ=1
@@ -58,8 +84,19 @@ WAIT_TIME=5
 
 while true; do
 	while [ $JSON_STAT -lt $NEXT_JSON_READ ]; do
+
 		sleep 1
-		JSON_STAT=$(stat --printf="%Y" $JSON_FILE)
+
+		# Grab new stat.  If it fails, wait longer (otherwise assign to the main var)
+		# We could theoretically sit here forever (if the JSON is never updated again),
+		# but that's actually OK.
+		NEW_STAT=$(stat --printf="%Y" $JSON_FILE 2> /dev/null)
+		RV=$?
+		if [ $RV -ne 0 ]; then
+			sleep 10
+		else
+			JSON_STAT=$NEW_STAT
+		fi
 	done
 	# Update this for the next loop
 	NEXT_JSON_READ=$(( JSON_STAT + $WAIT_TIME ))
