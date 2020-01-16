@@ -90,20 +90,33 @@ WAIT_TIME=5
 # How long curl will wait to send data (10 sec default)
 MAX_CURL_TIME=10
 
+# How must time (sec) has to pass since last JSON update before we say something
+# (We say something every time this length of interval has elapsed)
+# Default is 30 min
+AGE_INTERVAL=$(( 30 * 60 ))
+OLD_AGE=$AGE_INTERVAL
 while true; do
 	while [ $JSON_STAT -lt $NEXT_JSON_READ ]; do
 
 		sleep 1
 
+		NOW=$(date +%s)
+
 		# Grab new stat.  If it fails, wait longer (otherwise assign to the main var)
-		# We could theoretically sit here forever (if the JSON is never updated again),
-		# but that's actually OK.
 		NEW_STAT=$(stat --printf="%Y" $JSON_FILE 2> /dev/null)
 		RV=$?
 		if [ $RV -ne 0 ]; then
 			sleep 10
 		else
 			JSON_STAT=$NEW_STAT
+		fi
+		DIFF=$(( NOW - JSON_STAT ))
+		if [ $DIFF -gt $OLD_AGE ]; then
+			echo "WARNING: JSON file $JSON_FILE has not been updated in $DIFF seconds. Did your decoder die?"
+			OLD_AGE=$(( OLD_AGE + AGE_INTERVAL ))
+		else
+			# Reset this here, in case it comes back ;)
+			OLD_AGE=$AGE_INTERVAL
 		fi
 	done
 	# Update this for the next loop
