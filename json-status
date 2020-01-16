@@ -13,9 +13,9 @@ JSON_DIR=""
 # Check the paths IN ORDER, preferring the first one we find
 
 for i in ${!JSON_PATHS[@]}; do
-	CHECK=${JSON_PATH[$i]}
+	CHECK=${JSON_PATHS[$i]}
 
-	if [ -s $CHECK]; then
+	if [ -s $CHECK ]; then
 		JSON_DIR=$CHECK
 		break
 	fi
@@ -46,7 +46,7 @@ fi
 
 # echo -e "starting dump1090 stats watcher"
 
-JSON_FILE="${JSON_PATH}/aircraft.json"
+JSON_FILE="${JSON_DIR}/aircraft.json"
 
 # Grab the current timestamp of the file
 JSON_STAT=$(stat --printf="%Y" $JSON_FILE)
