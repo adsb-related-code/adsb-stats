@@ -29,6 +29,7 @@ fi
 
 # uuid
 UUID_FILE="/boot/adsbx-uuid"
+
 # look for uuid - if invalid or missing genrate one
 if [ -s $UUID_FILE ]; then
         UUID=$(cat $UUID_FILE)
@@ -43,8 +44,6 @@ else
         UUID=$(uuidgen -t)
         echo $UUID > $UUID_FILE
 fi
-
-# echo -e "starting dump1090 stats watcher"
 
 JSON_FILE="${JSON_DIR}/aircraft.json"
 
