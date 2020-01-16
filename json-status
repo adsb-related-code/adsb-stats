@@ -15,7 +15,7 @@ JSON_DIR=""
 for i in ${!JSON_PATHS[@]}; do
 	CHECK=${JSON_PATHS[$i]}
 
-	if [ -s $CHECK ]; then
+	if [ -d $CHECK ]; then
 		JSON_DIR=$CHECK
 		break
 	fi
