@@ -63,8 +63,8 @@ while [ $STAT_COUNT -lt 5 ]; do
 	JSON_STAT=$(stat --printf="%Y" $JSON_FILE 2> /dev/null)
 	RV=$?
 
-	if [ $RV -eq 0 ];
-		break;
+	if [ $RV -eq 0 ]; then
+		break
 	fi
 	STAT_COUNT=$(( STAT_COUNT + 1 ))
 	sleep 5
