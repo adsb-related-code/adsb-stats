@@ -1,15 +1,15 @@
 #!/bin/bash
 #
-# send dumpo1090 json to local or remote server for processing
+# Upload output data from decoder to remote server
 #
 
 REMOTE_URL="https://adsbexchange.com/api/receive/"
+
 
 # List all paths, IN PREFERRED ORDER, separated by a SPACE
 JSON_PATHS=( "/run/readsb" "/run/dump1090-mutability" "/run/dump1090-fa" )
 
 JSON_DIR=""
-
 
 # Do this a few times, in case we're still booting up (wait a bit between checks)
 CHECK_LOOP=0
@@ -24,36 +24,41 @@ while [ "x$JSON_DIR" == "x" ]; do
 		fi
 	done
 
-	# no directories just bail
+	# Couldn't find any of them...
 	if [ "x$JSON_DIR" == "x" ]; then
 		CHECK_LOOP=$(( CHECK_LOOP + 1 ))
+
 		if [ $CHECK_LOOP -gt 4 ]; then
 			# Bad news.  Complain and exit.
-			echo "Tried multiple times, could not find any of the directories - ABORTING!"
+			echo "ERROR: Tried multiple times, could not find any of the directories - ABORTING!"
 			exit 10
 		fi
-		echo "No Valid Directories Found.  Waiting a bit before next check..."
+		echo "No valid data source directory Found.  Tried each of: [${JSON_PATHS[@]}]"
+		echo "Waiting a bit before next check..."
 		sleep 20
 	fi
 done
 
-# uuid
+# UUID file
 UUID_FILE="/boot/adsbx-uuid"
 
-# look for uuid - if invalid or missing genrate one
+# Check for a (valid) UUID...
 if [ -s $UUID_FILE ]; then
         UUID=$(cat $UUID_FILE)
         if ! [[ $UUID =~ ^\{?[A-F0-9a-f]{8}-[A-F0-9a-f]{4}-[A-F0-9a-f]{4}-[A-F0-9a-f]{4}-[A-F0-9a-f]{12}\}?$ ]]; then
-                # invalid - remove and regenerate
+                # Data in UUID file is invalid.  Regenerate it!
+		echo "WARNING: Data in UUID file was invalid.  Regenerating UUID."
                 rm -f $UUID_FILE
                 UUID=$(uuidgen -t)
                 echo $UUID > $UUID_FILE
         fi
 else
-        #not found generate uuid and write
+        # not found generate uuid and save it
         UUID=$(uuidgen -t)
         echo $UUID > $UUID_FILE
 fi
+
+echo "Using UUID ${UUID} for stats uploads..."
 
 JSON_FILE="${JSON_DIR}/aircraft.json"
 
@@ -72,7 +77,7 @@ done
 
 # Bad juju if we still don't have a stat...
 if [ "x$JSON_STAT" == "x" ]; then
-	echo "Can't seem to stat $JSON_FILE for the first time, bailing out..."
+	echo "ERROR: Can't seem to stat $JSON_FILE at startup, bailing out..."
 	exit 15
 fi
 
@@ -81,6 +86,9 @@ NEXT_JSON_READ=1
 
 # How long to wait before uploads, minimum (in seconds)
 WAIT_TIME=5
+
+# How long curl will wait to send data (10 sec default)
+MAX_CURL_TIME=10
 
 while true; do
 	while [ $JSON_STAT -lt $NEXT_JSON_READ ]; do
@@ -110,10 +118,19 @@ while true; do
 
 	echo '{"uuid":"'$UUID'",' > $NEWFILE
 	echo '"aircraft":' >> $NEWFILE
-	jq '.aircraft' $TMPFILE >> $NEWFILE
+	# -c means "compact" form (not pretty-printed) -- saves space!
+	jq -c '.aircraft' $TMPFILE >> $NEWFILE
 	echo '}' >> $NEWFILE
   
-	$(cat $NEWFILE | gzip | curl -s -o /dev/null -X POST -H "Content_Encoding: gzip" --data-binary @- $REMOTE_URL) || true
+	# Push up the data.  'curl' will wait no more than $MAX_CURL_TIME seconds for upload to complete
+	CURL=$(cat $NEWFILE | gzip | curl -m $MAX_CURL_TIME -s -o /dev/null -X POST -H "Content_Encoding: gzip" --data-binary @- $REMOTE_URL 2>&1 )
+	RV=$?
+
+	if [ $RV -ne 0 ]; then
+		echo "WARNING: curl process returned non-zero ($RV): [$CURL]"
+		echo "Sleeping a little extra."
+		sleep $(( 5 + RANDOM % 10 ))
+	fi
 
 	rm $TMPFILE $NEWFILE
 
