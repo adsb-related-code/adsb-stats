@@ -139,6 +139,14 @@ while true; do
 	TMPFILE="/var/run/json-${RAND}"
 	NEWFILE="${TMPFILE}-new"
 
+	# Sanity to make sure we can write
+	T=$(touch $TMPFILE 2>&1)
+	RV=$?
+	if [ $RV -ne 0 ]; then
+		echo "ERROR: Unable to write to $TMPFILE, aborting!  ($T)"
+		exit 99
+	fi
+
 	cp $JSON_FILE $TMPFILE
 
 	echo '{"uuid":"'$UUID'",' > $NEWFILE
