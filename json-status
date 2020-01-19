@@ -60,6 +60,7 @@ else
 fi
 
 echo "Using UUID ${UUID} for stats uploads..."
+echo "Using JSON directory ${JSON_DIR} for source data..."
 
 JSON_FILE="${JSON_DIR}/aircraft.json"
 
@@ -82,6 +83,13 @@ if [ "x$JSON_STAT" == "x" ]; then
 	exit 15
 fi
 
+# Complain if this file seems really old
+NOW=$(date +%s)
+DIFF=$(( NOW - JSON_STAT ))
+if [ $DIFF -gt 60 ]; then
+	echo "WARNING: $JSON_FILE seems old, are you sure we're using the right path?"
+fi
+
 # Set this to a number
 NEXT_JSON_READ=1
 
@@ -91,11 +99,14 @@ WAIT_TIME=5
 # How long curl will wait to send data (10 sec default)
 MAX_CURL_TIME=10
 
-# How must time (sec) has to pass since last JSON update before we say something
-# (We say something every time this length of interval has elapsed)
-# Default is 30 min
+# How much time (sec) has to pass since last JSON update before we say something
+# Initial value is "AGE_COMPLAIN", and then it complains every "AGE_INTERVAL" after that
+# Deftauls are:
+#  AGE_COMPLAIN = 30 sec
+#  AGE_INTERVAL = 30 min (1800 sec)
+AGE_COMPLAIN=30
 AGE_INTERVAL=$(( 30 * 60 ))
-OLD_AGE=$AGE_INTERVAL
+OLD_AGE=$AGE_COMPLAIN
 while true; do
 	while [ $JSON_STAT -lt $NEXT_JSON_READ ]; do
 
@@ -117,7 +128,7 @@ while true; do
 			OLD_AGE=$(( OLD_AGE + AGE_INTERVAL ))
 		else
 			# Reset this here, in case it comes back ;)
-			OLD_AGE=$AGE_INTERVAL
+			OLD_AGE=$AGE_COMPLAIN
 		fi
 	done
 	# Update this for the next loop
