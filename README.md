@@ -5,11 +5,17 @@ This is installer only for FlightAware PiAware running ADSBexchange.com script i
 
 Looks for dump1090-fa and dump1090-mutability in default directories
 
+# List all paths, IN PREFERRED ORDER, separated by a SPACE
+JSON_PATHS=( "/run/readsb" "/run/dump1090-mutability" "/run/dump1090-fa" )
+
+If you are running dump1090 json in a different place then edit the script appropriately.
+
+
 Stats only.  Be sure to install ADSBexchange.com feeder package first.
 
 If you are already feeding ADSBx from a Pi, then skip Step 1 and move right to Step 2.
 
-### Step 1:
+### FEEDER PACKAGE : Step 1:
 
     sudo apt-get install git
     git clone https://github.com/adsbxchange/adsb-exchange.git
@@ -18,7 +24,7 @@ If you are already feeding ADSBx from a Pi, then skip Step 1 and move right to S
     sudo ./setup.sh
 
 
-### Step 2:
+### STATS : Step 2:
 
     cd /home/pi
     git clone https://github.com/adsbxchange/adsbexchange-stats.git
