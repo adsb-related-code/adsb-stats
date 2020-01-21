@@ -38,3 +38,8 @@ systemctl enable adsbexchange-stats.service
 
 #start service
 systemctl start adsbexchange-stats.service
+
+#output uuid
+echo "#####################################"
+cat /boot/adsbx-uuid
+echo "#####################################"
