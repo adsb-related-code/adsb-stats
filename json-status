@@ -7,7 +7,7 @@ REMOTE_URL="https://adsbexchange.com/api/receive/"
 
 
 # List all paths, IN PREFERRED ORDER, separated by a SPACE
-JSON_PATHS=( "/run/readsb" "/run/dump1090-mutability" "/run/dump1090-fa" "/run/dump1090" )
+JSON_PATHS=( "/run/readsb" "/run/dump1090-fa" "/run/dump1090-mutability" "/run/dump1090" )
 
 JSON_DIR=""
 
