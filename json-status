@@ -160,16 +160,6 @@ while true; do
 	RV=$?
 
 	if [ $RV -ne 0 ]; then
-		# Some we know about
-		if [ $RV -eq 6 ]; then
-			CURL="Couldn't resolve host. $CURL"
-		fi
-		if [ $RV -eq 7 ]; then
-			CURL="Unable to connect. $CURL"
-		fi
-		if [ $RV -eq 28 ]; then
-			CURL="Connect timed out. $CURL"
-		fi
 		echo "WARNING: curl process returned non-zero ($RV): [$CURL]"
 		echo "Sleeping a little extra."
 		sleep $(( 5 + RANDOM % 10 ))
