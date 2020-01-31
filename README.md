@@ -15,7 +15,8 @@ Stats only.  Be sure to install ADSBexchange.com feeder package first.
 
 If you are already feeding ADSBx from a Pi, then skip Step 1 and move right to Step 2.
 
-### FEEDER PACKAGE : Step 1:
+### STEP 1: GO TO STEP 2 IF ALREADY FEEDING ADSBX
+### FEEDER PACKAGE
 
     sudo apt-get install git
     git clone https://github.com/adsbxchange/adsb-exchange.git
@@ -23,8 +24,8 @@ If you are already feeding ADSBx from a Pi, then skip Step 1 and move right to S
     chmod +x setup.sh
     sudo ./setup.sh
 
-
-### STATS : Step 2:
+### STEP 2: INSTALL FOR STATS LINK ON https://www.adsbexchange.com/myip/
+### STATS
 
     cd /home/pi
     git clone https://github.com/adsbxchange/adsbexchange-stats.git
