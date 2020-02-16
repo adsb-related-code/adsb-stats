@@ -43,7 +43,7 @@ done
 UUID_FILE="/boot/adsbx-uuid"
 
 # Check for a (valid) UUID...
-if [ -s $UUID_FILE ]; then
+if [ -f $UUID_FILE ]; then
         UUID=$(cat $UUID_FILE)
         if ! [[ $UUID =~ ^\{?[A-F0-9a-f]{8}-[A-F0-9a-f]{4}-[A-F0-9a-f]{4}-[A-F0-9a-f]{4}-[A-F0-9a-f]{12}\}?$ ]]; then
                 # Data in UUID file is invalid.  Regenerate it!
