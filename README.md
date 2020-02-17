@@ -49,3 +49,5 @@ BETA URL:
 Replace your-uuid with adsbx stats generated uuid.
 
 https://www.adsbexchange.com/api/feeders/?feed=your-uuid
+
+--adsbx-git-discord
