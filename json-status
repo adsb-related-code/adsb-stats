@@ -1,15 +1,44 @@
 #!/bin/bash
+
 #
 # Upload output data from decoder to remote server
 #
 
 REMOTE_URL="https://adsbexchange.com/api/receive/"
 
-
 # List all paths, IN PREFERRED ORDER, separated by a SPACE
 JSON_PATHS=( "/run/readsb" "/run/dump1090-fa" "/run/dump1090-mutability" "/run/dump1090" )
 
 JSON_DIR=""
+
+TEMP_DIR="/var/run/adsbexchange-stats/"
+
+# Let's make sure the UUID tools are installed...
+UUIDGEN=$(command -v uuidgen)
+RV=$?
+
+if [ $RV -ne 0 ]; then
+	echo "Can't find uuidgen in path, trying to force install the tools..."
+	apt-get -y install uuid-runtime
+	RV=$?
+	if [ $RV -ne 0 ]; then
+		echo "Failed to install uuid-runtime package - need manual intervention!"
+		sleep 60
+		exit 10
+	fi
+fi
+
+# Check for / create the tmp dir
+if [ ! -d $TEMP_DIR ]; then
+	echo "Working dir [$TEMP_DIR] doesn't exist, creating..."
+	MD=$(mkdir -p $TEMP_DIR 2>&1)
+	RV=$?
+	if [ $RV -ne 0 ]; then
+		echo "FATAL: Failed to create working dir [$TEMP_DIR] ($MD)"
+		sleep 5
+		exit 20
+	fi
+fi
 
 # Do this a few times, in case we're still booting up (wait a bit between checks)
 CHECK_LOOP=0
@@ -49,18 +78,18 @@ if [ -f $UUID_FILE ]; then
                 # Data in UUID file is invalid.  Regenerate it!
 		echo "WARNING: Data in UUID file was invalid.  Regenerating UUID."
                 rm -f $UUID_FILE
-                UUID=$(uuidgen -t)
+                UUID=$($UUIDGEN -t)
                 echo $UUID > $UUID_FILE
         fi
 else
         # not found generate uuid and save it
 	echo "WARNING: No UUID file found, generating new UUID..."
-        UUID=$(uuidgen -t)
+        UUID=$($UUIDGEN -t)
         echo $UUID > $UUID_FILE
 fi
 
-echo "Using UUID ${UUID} for stats uploads..."
-echo "Using JSON directory ${JSON_DIR} for source data..."
+echo "Using UUID [${UUID}] for stats uploads..."
+echo "Using JSON directory [${JSON_DIR}] for source data..."
 
 JSON_FILE="${JSON_DIR}/aircraft.json"
 
@@ -74,7 +103,7 @@ while [ $STAT_COUNT -lt 5 ]; do
 		break
 	fi
 	STAT_COUNT=$(( STAT_COUNT + 1 ))
-	sleep 5
+	sleep 15
 done
 
 # Bad juju if we still don't have a stat...
@@ -136,7 +165,7 @@ while true; do
 
 	# Move the JSON somewhere before operating on it...
 	RAND=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c10)
-	TMPFILE="/var/run/json-${RAND}"
+	TMPFILE="${TEMP_DIR}/json-${RAND}"
 	NEWFILE="${TMPFILE}-new"
 
 	# Sanity to make sure we can write
@@ -147,7 +176,13 @@ while true; do
 		exit 99
 	fi
 
-	cp $JSON_FILE $TMPFILE
+	CP=$(cp $JSON_FILE $TMPFILE)
+	RV=$?
+	if [ $RV -ne 0 ]; then
+		# cp failed (file changed during copy, usually), wait a few and loop again
+		sleep 2
+		continue
+	fi
 
 	echo '{"uuid":"'$UUID'",' > $NEWFILE
 	echo '"aircraft":' >> $NEWFILE
@@ -162,10 +197,10 @@ while true; do
 	if [ $RV -ne 0 ]; then
 		echo "WARNING: curl process returned non-zero ($RV): [$CURL]"
 		echo "Sleeping a little extra."
-		sleep $(( 5 + RANDOM % 10 ))
+		sleep $(( 5 + RANDOM % 15 ))
 	fi
 
-	rm $TMPFILE $NEWFILE
+	rm -f $TMPFILE $NEWFILE > /dev/null 2&>1
 
 done
 
