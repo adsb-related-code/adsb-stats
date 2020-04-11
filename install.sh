@@ -20,6 +20,7 @@ cp json-status $IPATH
 cp create-uuid.sh $IPATH
 chmod +x $IPATH/json-status
 chmod +x $IPATH/create-uuid.sh
+cp uninstall.sh $IPATH
 
 
 bash $IPATH/create-uuid.sh
