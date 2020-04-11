@@ -51,3 +51,14 @@ Replace your-uuid with adsbx stats generated uuid.
 https://www.adsbexchange.com/api/feeders/?feed=your-uuid
 
 --adsbx-git-discord
+
+### Uninstall
+
+```
+sudo bash -c $(cat /usr/local/share/adsbexchange-stats/uninstall.sh)
+```
+
+for early versions just disable the service:
+```
+sudo systemctl disable --now adsbexchange-stats
+```

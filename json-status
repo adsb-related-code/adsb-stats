@@ -7,38 +7,11 @@
 REMOTE_URL="https://adsbexchange.com/api/receive/"
 
 # List all paths, IN PREFERRED ORDER, separated by a SPACE
-JSON_PATHS=( "/run/readsb" "/run/dump1090-fa" "/run/dump1090-mutability" "/run/dump1090" )
+JSON_PATHS=("/run/adsbexchange-feed" "/run/readsb" "/run/dump1090-fa" "/run/dump1090-mutability" "/run/dump1090" )
 
 JSON_DIR=""
 
-TEMP_DIR="/var/run/adsbexchange-stats/"
-
-# Let's make sure the UUID tools are installed...
-UUIDGEN=$(command -v uuidgen)
-RV=$?
-
-if [ $RV -ne 0 ]; then
-	echo "Can't find uuidgen in path, trying to force install the tools..."
-	apt-get -y install uuid-runtime
-	RV=$?
-	if [ $RV -ne 0 ]; then
-		echo "Failed to install uuid-runtime package - need manual intervention!"
-		sleep 60
-		exit 10
-	fi
-fi
-
-# Check for / create the tmp dir
-if [ ! -d $TEMP_DIR ]; then
-	echo "Working dir [$TEMP_DIR] doesn't exist, creating..."
-	MD=$(mkdir -p $TEMP_DIR 2>&1)
-	RV=$?
-	if [ $RV -ne 0 ]; then
-		echo "FATAL: Failed to create working dir [$TEMP_DIR] ($MD)"
-		sleep 5
-		exit 20
-	fi
-fi
+TEMP_DIR="/run/adsbexchange-stats/"
 
 # Do this a few times, in case we're still booting up (wait a bit between checks)
 CHECK_LOOP=0
@@ -71,21 +44,12 @@ done
 # UUID file
 UUID_FILE="/boot/adsbx-uuid"
 
-# Check for a (valid) UUID...
-if [ -f $UUID_FILE ]; then
-        UUID=$(cat $UUID_FILE)
-        if ! [[ $UUID =~ ^\{?[A-F0-9a-f]{8}-[A-F0-9a-f]{4}-[A-F0-9a-f]{4}-[A-F0-9a-f]{4}-[A-F0-9a-f]{12}\}?$ ]]; then
-                # Data in UUID file is invalid.  Regenerate it!
-		echo "WARNING: Data in UUID file was invalid.  Regenerating UUID."
-                rm -f $UUID_FILE
-                UUID=$($UUIDGEN -t)
-                echo $UUID > $UUID_FILE
-        fi
-else
-        # not found generate uuid and save it
-	echo "WARNING: No UUID file found, generating new UUID..."
-        UUID=$($UUIDGEN -t)
-        echo $UUID > $UUID_FILE
+UUID=$(cat $UUID_FILE)
+
+if ! [[ $UUID =~ ^\{?[A-F0-9a-f]{8}-[A-F0-9a-f]{4}-[A-F0-9a-f]{4}-[A-F0-9a-f]{4}-[A-F0-9a-f]{12}\}?$ ]]; then
+    # Data in UUID file is invalid
+    echo "FATAL: Data in UUID file was invalid, exiting!"
+    exit 1
 fi
 
 echo "Using UUID [${UUID}] for stats uploads..."
@@ -200,7 +164,7 @@ while true; do
 		sleep $(( 5 + RANDOM % 15 ))
 	fi
 
-	rm -f $TMPFILE $NEWFILE > /dev/null 2&>1
+	rm -f $TMPFILE $NEWFILE
 
 done
 
