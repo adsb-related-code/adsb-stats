@@ -10,4 +10,4 @@ rm -rf $IPATH
 set +x
 
 echo -----
-echo "adsbexchange-stats uninstalled"
+echo "adsbexchange-stats have been uninstalled!"

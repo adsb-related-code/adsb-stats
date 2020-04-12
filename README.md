@@ -55,10 +55,10 @@ https://www.adsbexchange.com/api/feeders/?feed=your-uuid
 ### Uninstall
 
 ```
-sudo bash -c $(cat /usr/local/share/adsbexchange-stats/uninstall.sh)
+sudo bash /usr/local/share/adsbexchange-stats/uninstall.sh
 ```
 
-for early versions just disable the service:
+For early versions just disable the service:
 ```
 sudo systemctl disable --now adsbexchange-stats
 ```
