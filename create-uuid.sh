@@ -26,6 +26,8 @@ if [ -f $UUID_FILE ]; then
         rm -f $UUID_FILE
         UUID=$($UUIDGEN -t)
         echo $UUID > $UUID_FILE
+    else
+        echo "Using existing valid UUID ($UUID) from $UUID_FILE"
     fi
 else
     # not found generate uuid and save it
