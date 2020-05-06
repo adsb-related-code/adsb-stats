@@ -14,7 +14,9 @@ DNS_CACHE=1
 DNS_TTL=600
 
 # List all paths, IN PREFERRED ORDER, separated by a SPACE
-JSON_PATHS=("/run/adsbexchange-feed" "/run/readsb" "/run/dump1090-fa" "/run/dump1090-mutability" "/run/dump1090" )
+#JSON_PATHS=("/run/adsbexchange-feed" "/run/readsb" "/run/dump1090-fa" "/run/dump1090-mutability" "/run/dump1090" )
+# Only use the json from the feed client
+JSON_PATHS=("/run/adsbexchange-feed")
 
 JSON_DIR=""
 
@@ -42,8 +44,8 @@ while [ "x$JSON_DIR" == "x" ]; do
 			echo "ERROR: Tried multiple times, could not find any of the directories - ABORTING!"
 			exit 10
 		fi
-		echo "No valid data source directory Found.  Tried each of: [${JSON_PATHS[@]}]"
-		echo "Waiting a bit before next check..."
+		#echo "No valid data source directory Found.  Tried each of: [${JSON_PATHS[@]}]"
+		echo "No valid data from adsbexchange-feed, waiting a bit before next check..."
 		sleep 20
 	fi
 done
