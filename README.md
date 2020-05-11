@@ -1,29 +1,23 @@
 # adsbexchange-stats
 ADSBexchange.com Statistics Beta
 
-This is installer only for FlightAware PiAware running ADSBexchange.com script install.
+This is installer only for Pi running ADSBexchange.com script install.
 
-Looks for dump1090-fa and dump1090-mutability in default directories
+Looks for /run/adsbexchange-feed default directories
 
-#### List all paths, IN PREFERRED ORDER, separated by a SPACE
-JSON_PATHS=( "/run/readsb" "/run/dump1090-mutability" "/run/dump1090-fa" )
+JSON_PATHS=("/run/adsbexchange-feed")
 
-If you are running dump1090 json in a different place then edit the script appropriately.
-
+You must be running ADSBexchange feeder.
 
 Stats only.  Be sure to install ADSBexchange.com feeder package first.
 
-If you are already feeding ADSBx from a Pi, then skip Step 1 and move right to Step 2.
-
-### STEP 1: GO TO STEP 2 IF ALREADY FEEDING ADSBX
-### FEEDER PACKAGE
+### STEP 1: FEEDER PACKAGE
 
 ```
 sudo bash -c "$(wget -nv -O - https://raw.githubusercontent.com/adsbxchange/adsb-exchange/master/install.sh)"
 ```
 
-### STEP 2: INSTALL FOR STATS LINK ON https://www.adsbexchange.com/myip/
-### STATS
+### STEP 2: TATS
 
     cd /home/pi
     git clone https://github.com/adsbxchange/adsbexchange-stats.git
