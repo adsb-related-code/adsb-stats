@@ -1,11 +1,7 @@
 # adsbexchange-stats
 ADSBexchange.com Statistics Beta
 
-This is installer only for Pi running ADSBexchange.com script install.
-
-Looks for /run/adsbexchange-feed default directories
-
-JSON_PATHS=("/run/adsbexchange-feed")
+This installer is meant only for an RPi running ADSBexchange.com script install.
 
 You must be running ADSBexchange feeder.
 
@@ -19,22 +15,26 @@ sudo bash -c "$(wget -nv -O - https://raw.githubusercontent.com/adsbxchange/adsb
 
 ### STEP 2: STATS
 
-    cd /home/pi
-    git clone https://github.com/adsbxchange/adsbexchange-stats.git
-    cd adsbexchange-stats
-    sudo bash install.sh
+```
+cd /home/pi
+git clone https://github.com/adsbxchange/adsbexchange-stats.git
+cd adsbexchange-stats
+sudo bash install.sh
+```
 
-    
-**After completing the setup do not delete this repository.**
-
-Script assume location of json-status in .service file.  Change as needed to suit your install location.
 
 ### Systemd Status
+
+```
 sudo systemctl status adsbexchange-stats
+```
 
 
 ### Restart
+
+```
 sudo systemctl restart adsbexchange-stats
+```
 
 BETA URL:
 
