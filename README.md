@@ -17,13 +17,13 @@ Stats only.  Be sure to install ADSBexchange.com feeder package first.
 sudo bash -c "$(wget -nv -O - https://raw.githubusercontent.com/adsbxchange/adsb-exchange/master/install.sh)"
 ```
 
-### STEP 2: TATS
+### STEP 2: STATS
 
     cd /home/pi
     git clone https://github.com/adsbxchange/adsbexchange-stats.git
     cd adsbexchange-stats
-    chmod +x install.sh
-    sudo ./install.sh
+    sudo bash install.sh
+
     
 **After completing the setup do not delete this repository.**
 
