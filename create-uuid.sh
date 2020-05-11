@@ -24,7 +24,7 @@ if [ -f $UUID_FILE ]; then
         # Data in UUID file is invalid.  Regenerate it!
         echo "WARNING: Data in UUID file was invalid.  Regenerating UUID."
         rm -f $UUID_FILE
-        UUID=$($UUIDGEN -t)
+        UUID=$($UUIDGEN)
         echo $UUID > $UUID_FILE
     else
         echo "Using existing valid UUID ($UUID) from $UUID_FILE"
@@ -32,7 +32,7 @@ if [ -f $UUID_FILE ]; then
 else
     # not found generate uuid and save it
     echo "WARNING: No UUID file found, generating new UUID..."
-    UUID=$($UUIDGEN -t)
+    UUID=$($UUIDGEN)
     echo $UUID > $UUID_FILE
 fi
 
