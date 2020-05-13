@@ -7,6 +7,8 @@ systemctl disable --now adsbexchange-stats.service
 rm -f /etc/systemd/system/adsbexchange-stats.service
 rm -rf $IPATH
 
+rm /usr/local/bin/adsbexchange-showurl
+
 set +x
 
 echo -----

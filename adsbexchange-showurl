@@ -1,0 +1,2 @@
+#!/bin/bash
+curl -sS https://adsbexchange.com/myip/ | jq '."stats-uuid"' -r | sed -e 's$^$https://www.adsbexchange.com/api/feeders/?feed=$'

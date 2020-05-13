@@ -14,6 +14,9 @@ fi
 apt-get update
 apt-get install -y curl uuid-runtime jq inotify-tools gzip
 
+mkdir -p /usr/local/bin
+cp adsbexchange-showurl /usr/local/bin/adsbexchange-showurl
+
 hash -r
 
 cp json-status $IPATH
