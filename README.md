@@ -22,6 +22,11 @@ cd adsbexchange-stats
 sudo bash install.sh
 ```
 
+### Show stats URL on RPi console
+```
+adsbexchange-showurl
+```
+
 
 ### Systemd Status
 
@@ -29,18 +34,17 @@ sudo bash install.sh
 sudo systemctl status adsbexchange-stats
 ```
 
-
 ### Restart
 
 ```
 sudo systemctl restart adsbexchange-stats
 ```
 
-BETA URL:
+### Figure the URL out yourself
 
-Replace your-uuid with adsbx stats generated uuid.
+Replace UUID with the adsbx stats generated uuid:
 
-https://www.adsbexchange.com/api/feeders/?feed=your-uuid
+https://www.adsbexchange.com/api/feeders/?feed=UUID
 
 --adsbx-git-discord
 
