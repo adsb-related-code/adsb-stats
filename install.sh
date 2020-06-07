@@ -25,6 +25,10 @@ chmod +x $IPATH/json-status
 chmod +x $IPATH/create-uuid.sh
 cp uninstall.sh $IPATH
 
+if [ -f /boot/adsb-config.txt ] && ! [ -d /run/adsbexchange-feed ] && ! [ -f /etc/default/adsbexchange-stats ]
+then
+    echo "USE_OLD_PATH=1" > /etc/default/adsbexchange-stats
+fi
 
 bash $IPATH/create-uuid.sh
 
