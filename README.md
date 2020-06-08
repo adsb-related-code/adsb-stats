@@ -10,16 +10,15 @@ Stats only.  Be sure to install ADSBexchange.com feeder package first.
 ### STEP 1: FEEDER PACKAGE
 
 ```
-sudo bash -c "$(wget -nv -O - https://raw.githubusercontent.com/adsbxchange/adsb-exchange/master/install.sh)"
+curl -o /tmp/install.sh https://raw.githubusercontent.com/adsbxchange/adsb-exchange/master/install.sh
+sudo bash /tmp/install.sh
 ```
 
 ### STEP 2: STATS
 
 ```
-cd /home/pi
-git clone https://github.com/adsbxchange/adsbexchange-stats.git
-cd adsbexchange-stats
-sudo bash install.sh
+curl -o /tmp/stats.sh https://raw.githubusercontent.com/adsbxchange/adsbexchange-stats/master/stats.sh
+sudo bash /tmp/stats.sh
 ```
 
 ### Show stats URL on RPi console
