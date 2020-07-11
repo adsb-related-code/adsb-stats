@@ -12,7 +12,7 @@ fi
 
 # requires uuidgen curl jq inotify-tools gzip
 apt-get update
-apt-get install -y curl uuid-runtime jq inotify-tools gzip
+apt-get install -y curl uuid-runtime jq inotify-tools gzip dnsutils
 
 mkdir -p /usr/local/bin
 cp adsbexchange-showurl /usr/local/bin/adsbexchange-showurl
