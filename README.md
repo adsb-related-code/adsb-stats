@@ -1,8 +1,6 @@
 # adsbexchange-stats
 ADSBexchange.com Statistics Beta
 
-This installer is meant only for an RPi running ADSBexchange.com script install.
-
 You must be running ADSBexchange feeder.
 
 Stats only.  Be sure to install ADSBexchange.com feeder package first.
@@ -21,7 +19,7 @@ curl -o /tmp/stats.sh https://raw.githubusercontent.com/adsbxchange/adsbexchange
 sudo bash /tmp/stats.sh
 ```
 
-### Show stats URL on RPi console
+### Show stats URL on console
 ```
 adsbexchange-showurl
 ```
