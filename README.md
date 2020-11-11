@@ -8,15 +8,15 @@ Stats only.  Be sure to install ADSBexchange.com feeder package first.
 ### STEP 1: FEEDER PACKAGE
 
 ```
-curl -o /tmp/install.sh https://raw.githubusercontent.com/adsbxchange/adsb-exchange/master/install.sh
-sudo bash /tmp/install.sh
+wget -O /tmp/axfeed.sh https://raw.githubusercontent.com/adsbxchange/adsb-exchange/master/install.sh
+sudo bash /tmp/axfeed.sh
 ```
 
 ### STEP 2: STATS
 
 ```
-curl -o /tmp/stats.sh https://raw.githubusercontent.com/adsbxchange/adsbexchange-stats/master/stats.sh
-sudo bash /tmp/stats.sh
+wget -O /tmp/axstats.sh https://raw.githubusercontent.com/adsbxchange/adsbexchange-stats/master/stats.sh
+sudo bash /tmp/axstats.sh
 ```
 
 ### Show stats URL on console
