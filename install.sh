@@ -38,6 +38,9 @@ cp adsbexchange-stats.service /etc/systemd/system/adsbexchange-stats.service
 #wait (needed?)
 sleep 2
 
+#add user for voltage 
+adduser adsbexchange video
+
 #enable service
 systemctl enable adsbexchange-stats.service
 
