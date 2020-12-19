@@ -70,7 +70,7 @@ while [ "x$JSON_DIR" = "x" ]; do
 			echo "ERROR: Tried multiple times, could not find any of the directories - ABORTING!"
 			exit 10
 		fi
-		echo "No valid data source directory Found.  Tried each of: [${JSON_PATHS[@]}]"
+		echo "No valid data source directory found, do you have the adsbexchange feed scripts installed?  Tried each of: [${JSON_PATHS[@]}]"
 		sleep 20
 	fi
 done

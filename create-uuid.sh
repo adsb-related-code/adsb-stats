@@ -7,8 +7,9 @@ UUIDGEN=$(command -v uuidgen)
 RV=$?
 
 if [ $RV -ne 0 ]; then
-    echo "Can't find uuidgen in path, trying to force install the tools..."
+    echo "Can't find uuidgen in path, trying to install uuidgen..."
     apt-get -y install uuid-runtime
+    UUIDGEN=$(command -v uuidgen)
     RV=$?
     if [ $RV -ne 0 ]; then
         echo "Failed to install uuid-runtime package - need manual intervention!"
@@ -25,6 +26,7 @@ if [ -f $UUID_FILE ]; then
         echo "WARNING: Data in UUID file was invalid.  Regenerating UUID."
         rm -f $UUID_FILE
         UUID=$($UUIDGEN)
+        echo New UUID: $UUID
         echo $UUID > $UUID_FILE
     else
         echo "Using existing valid UUID ($UUID) from $UUID_FILE"
@@ -33,6 +35,7 @@ else
     # not found generate uuid and save it
     echo "WARNING: No UUID file found, generating new UUID..."
     UUID=$($UUIDGEN)
+    echo New UUID: $UUID
     echo $UUID > $UUID_FILE
 fi
 
