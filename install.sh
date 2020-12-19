@@ -10,9 +10,17 @@ then
     adduser --system --home $IPATH --no-create-home --quiet adsbexchange >/dev/null
 fi
 
-# requires uuidgen curl jq inotify-tools gzip
-apt-get update
-apt-get install -y curl uuid-runtime jq inotify-tools gzip dnsutils
+# commands used
+COMMANDS="curl uuidgen jq inotifywait gzip host perl"
+# corresponding packages
+PACKAGES="curl uuid-runtime jq inotify-tools gzip dnsutils perl"
+
+for CMD in $COMMANDS; do
+    if ! command -v $CMD; then
+        apt-get update
+        apt-get install -y $PACKAGES
+    fi
+done
 
 mkdir -p /usr/local/bin
 cp adsbexchange-showurl /usr/local/bin/adsbexchange-showurl
