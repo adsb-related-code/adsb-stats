@@ -296,7 +296,7 @@ while true; do
 		continue
 	fi
 
-        STATUS=$(vcgencmd get_throttled)
+        STATUS=$(vcgencmd get_throttled 2>/dev/null)
         STATUS=${STATUS#*=}
 
         printf '{"uuid":"'$UUID'",' > $NEWFILE
