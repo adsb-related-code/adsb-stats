@@ -304,11 +304,11 @@ while true; do
         # -c means "compact" form (not pretty-printed) -- saves space!
         jq -c '.aircraft' $TMPFILE >> $NEWFILE
         printf ',"rssi":' >> $NEWFILE
-        jq -c '[.aircraft[].rssi] | select(. >=0) | add / length | floor' $TMPFILE >> $NEWFILE
+        jq -c 'try ([.aircraft[].rssi] | select(. >=0) | add / length | floor) catch 0' $TMPFILE >> $NEWFILE
         printf ',"rssi-min":' >> $NEWFILE
-        jq -c '[.aircraft[].rssi] | select(. >=0) | min | floor' $TMPFILE >> $NEWFILE
+        jq -c 'try ([.aircraft[].rssi] | select(. >=0) | min | floor) catch 0' $TMPFILE >> $NEWFILE
         printf ',"rssi-max":' >> $NEWFILE
-        jq -c '[.aircraft[].rssi] | select(. >=0) | max | floor' $TMPFILE >> $NEWFILE
+        jq -c 'try ([.aircraft[].rssi] | select(. >=0) | max | floor) catch 0' $TMPFILE >> $NEWFILE
         printf ',"v":"'$STATUS'"' >> $NEWFILE
         printf '}' >> $NEWFILE
 
