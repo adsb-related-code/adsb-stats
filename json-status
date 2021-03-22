@@ -328,15 +328,24 @@ while true; do
 			CURL_EXTRA="--resolve ${REMOTE_HOST}:443:$REMOTE_IP"
 		fi
 	fi
-  
-	# Push up the data.  'curl' will wait no more than $MAX_CURL_TIME seconds for upload to complete
-	CURL=$(cat $NEWFILE | gzip | curl -m $MAX_CURL_TIME $CURL_EXTRA -sS -X POST -H "Content_Encoding: gzip" --data-binary @- $REMOTE_URL 2>&1 )
-	RV=$?
 
-	if [ $RV -ne 0 ]; then
-		echo "WARNING: curl process returned non-zero ($RV): [$CURL]"
-		echo "Sleeping a little extra."
-		sleep $(( 5 + RANDOM % 15 ))
+	# Ensure data is valid before pushing
+	if jq . < "$NEWFILE" > /dev/null; then
+  
+		# Push up the data.  'curl' will wait no more than $MAX_CURL_TIME seconds for upload to complete
+		CURL=$(cat $NEWFILE | gzip | curl -m $MAX_CURL_TIME $CURL_EXTRA -sS -X POST -H "Content_Encoding: gzip" --data-binary @- $REMOTE_URL 2>&1 )
+		RV=$?
+
+		if [ $RV -ne 0 ]; then
+			echo "WARNING: curl process returned non-zero ($RV): [$CURL]"
+			echo "Sleeping a little extra."
+			sleep $(( 5 + RANDOM % 15 ))
+		fi
+
+	else
+
+		echo "ERROR: Invalid JSON in '$NEWFILE'!"
+
 	fi
 
 	rm -f $TMPFILE $NEWFILE
