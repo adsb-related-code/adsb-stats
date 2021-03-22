@@ -47,6 +47,17 @@ fi
 JSON_DIR=""
 
 TEMP_DIR="/run/adsbexchange-stats/"
+TMPFILE="${TEMP_DIR}/tmp.json"
+NEWFILE="${TEMP_DIR}/new.json"
+
+# Sanity to make sure we can write to our scratch dir in /run
+T=$(touch $TMPFILE 2>&1)
+RV=$?
+if [ $RV -ne 0 ]; then
+    echo "ERROR: Unable to write to $TMPFILE, aborting!  ($T)"
+    exit 99
+fi
+
 
 # Do this a few times, in case we're still booting up (wait a bit between checks)
 CHECK_LOOP=0
@@ -276,17 +287,6 @@ while true; do
 	NEXT_JSON_READ=$(( JSON_STAT + $WAIT_TIME ))
 
 	# Move the JSON somewhere before operating on it...
-	RAND=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c10)
-	TMPFILE="${TEMP_DIR}/json-${RAND}"
-	NEWFILE="${TMPFILE}-new"
-
-	# Sanity to make sure we can write
-	T=$(touch $TMPFILE 2>&1)
-	RV=$?
-	if [ $RV -ne 0 ]; then
-		echo "ERROR: Unable to write to $TMPFILE, aborting!  ($T)"
-		exit 99
-	fi
 
 	CP=$(cp $JSON_FILE $TMPFILE 2>&1)
 	RV=$?
@@ -296,23 +296,22 @@ while true; do
 		continue
 	fi
 
-        STATUS=$(vcgencmd get_throttled 2>/dev/null)
-        STATUS=${STATUS#*=}
+    if STATUS=$(vcgencmd get_throttled 2>/dev/null | tr -d '"'); then
+        STATUS="${STATUS#*=}"
+    else
+        STATUS=""
+    fi
 
-        printf '{"uuid":"'$UUID'",' > $NEWFILE
-        printf '"aircraft":' >> $NEWFILE
-        # -c means "compact" form (not pretty-printed) -- saves space!
-        jq -c '.aircraft' $TMPFILE >> $NEWFILE
-        printf ',"rssi":' >> $NEWFILE
-        jq -c 'if (.aircraft | length <= 0) then 0 else ([.aircraft[].rssi] | select(. >=0) | add / length | floor) end' $TMPFILE >> $NEWFILE
-        printf ',"rssi-min":' >> $NEWFILE
-        jq -c 'if (.aircraft | length <= 0) then 0 else ([.aircraft[].rssi] | select(. >=0) | min | floor) end' $TMPFILE >> $NEWFILE
-        printf ',"rssi-max":' >> $NEWFILE
-        jq -c 'if (.aircraft | length <= 0) then 0 else ([.aircraft[].rssi] | select(. >=0) | max | floor) end' $TMPFILE >> $NEWFILE
-        printf ',"v":"'$STATUS'"' >> $NEWFILE
-        printf '}' >> $NEWFILE
-
-
+    jq \
+        --arg STATUS "$STATUS" \
+        --arg UUID "$UUID" \
+        ' .
+            | ."uuid"=$UUID
+            | ."v"=$STATUS
+            | ."rssi"=(if (.aircraft | length <= 0) then 0 else ([.aircraft[].rssi] | select(. >=0) | add / length | floor) end)
+            | ."rssi-min"=(if (.aircraft | length <= 0) then 0 else ([.aircraft[].rssi] | select(. >=0) | min | floor) end)
+            | ."rssi-max"=(if (.aircraft | length <= 0) then 0 else ([.aircraft[].rssi] | select(. >=0) | max | floor) end)
+        ' < $TMPFILE > $NEWFILE
 
 	CURL_EXTRA=""
 	# If DNS_CACHE is set, use the builtin cache (and correspondingly the additional curl arg
@@ -328,7 +327,7 @@ while true; do
 			CURL_EXTRA="--resolve ${REMOTE_HOST}:443:$REMOTE_IP"
 		fi
 	fi
-  
+
 	# Push up the data.  'curl' will wait no more than $MAX_CURL_TIME seconds for upload to complete
 	CURL=$(cat $NEWFILE | gzip | curl -m $MAX_CURL_TIME $CURL_EXTRA -sS -X POST -H "Content_Encoding: gzip" --data-binary @- $REMOTE_URL 2>&1 )
 	RV=$?
