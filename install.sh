@@ -40,22 +40,21 @@ fi
 
 bash $IPATH/create-uuid.sh
 
-#copy the service file
+# copy the service file
 cp adsbexchange-stats.service /etc/systemd/system/adsbexchange-stats.service
 
-#wait (needed?)
-sleep 2
+# add adsbexchange user to video group for vcgencmd get_throttled if the system has that command and it works:
+if vcgencmd get_throttled &>/dev/null; then
+    adduser adsbexchange video
+fi
 
-#add user for voltage 
-adduser adsbexchange video
-
-#enable service
+# enable service
 systemctl enable adsbexchange-stats.service
 
-#start service
+# start service
 systemctl restart adsbexchange-stats.service
 
-#output uuid
+# output uuid
 echo "#####################################"
 cat /boot/adsbx-uuid
 echo "#####################################"
