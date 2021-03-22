@@ -260,31 +260,36 @@ AGE_COMPLAIN=30
 AGE_INTERVAL=$(( 30 * 60 ))
 OLD_AGE=$AGE_COMPLAIN
 while true; do
-	while [ $JSON_STAT -lt $NEXT_JSON_READ ]; do
+    NOW=$(date +%s)
 
-		sleep 1
+    # Grab new stat.  If it fails, wait longer (otherwise assign to the main var)
+    NEW_STAT=$(stat --printf="%Y" $JSON_FILE 2> /dev/null)
+    RV=$?
+    if [ $RV -ne 0 ]; then
+        sleep 10
+    else
+        JSON_STAT=$NEW_STAT
+    fi
+    DIFF=$(( NOW - JSON_STAT ))
+    if [ $DIFF -gt $OLD_AGE ]; then
+        echo "WARNING: JSON file $JSON_FILE has not been updated in $DIFF seconds. Did your decoder die?"
+        OLD_AGE=$(( OLD_AGE + AGE_INTERVAL ))
+    else
+        # Reset this here, in case it comes back ;)
+        OLD_AGE=$AGE_COMPLAIN
+    fi
 
-		NOW=$(date +%s)
+	if [ $JSON_STAT -lt $NEXT_JSON_READ ]; then
+        sleep 1
+        continue
+    fi
 
-		# Grab new stat.  If it fails, wait longer (otherwise assign to the main var)
-		NEW_STAT=$(stat --printf="%Y" $JSON_FILE 2> /dev/null)
-		RV=$?
-		if [ $RV -ne 0 ]; then
-			sleep 10
-		else
-			JSON_STAT=$NEW_STAT
-		fi
-		DIFF=$(( NOW - JSON_STAT ))
-		if [ $DIFF -gt $OLD_AGE ]; then
-			echo "WARNING: JSON file $JSON_FILE has not been updated in $DIFF seconds. Did your decoder die?"
-			OLD_AGE=$(( OLD_AGE + AGE_INTERVAL ))
-		else
-			# Reset this here, in case it comes back ;)
-			OLD_AGE=$AGE_COMPLAIN
-		fi
-	done
 	# Update this for the next loop
 	NEXT_JSON_READ=$(( JSON_STAT + $WAIT_TIME ))
+
+    # make this loop from now to the next start last exactly $WAIT_TIME secons
+    # sleep in the background then wait for it at the end of the loop
+    sleep $WAIT_TIME &
 
 	# Move the JSON somewhere before operating on it...
 
@@ -340,5 +345,7 @@ while true; do
 
 	rm -f $TMPFILE $NEWFILE
 
+    # wait on the earlier issued sleep $WAIT_TIME &
+    wait
 done
 
