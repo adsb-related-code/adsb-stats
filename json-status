@@ -307,7 +307,7 @@ while true; do
         STATUS=""
     fi
 
-    if ! jq \
+    if ! jq -c \
         --arg STATUS "$STATUS" \
         --arg UUID "$UUID" \
         ' .
@@ -350,9 +350,9 @@ while true; do
 		sleep $(( 5 + RANDOM % 15 ))
 	fi
 
-	rm -f $TMPFILE $NEWFILE
-
     # wait on the earlier issued "sleep $WAIT_TIME &"
     wait
+    # only delete the files after the waiting has happened, makes debugginn / inspection of the files easier
+	rm -f $TMPFILE $NEWFILE
 done
 

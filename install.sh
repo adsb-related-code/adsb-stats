@@ -16,7 +16,7 @@ COMMANDS="curl uuidgen jq inotifywait gzip host perl"
 PACKAGES="curl uuid-runtime jq inotify-tools gzip dnsutils perl"
 
 for CMD in $COMMANDS; do
-    if ! command -v $CMD; then
+    if ! command -v $CMD &>/dev/null; then
         apt-get update
         apt-get install -y $PACKAGES
     fi
