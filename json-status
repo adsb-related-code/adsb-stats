@@ -341,7 +341,7 @@ while true; do
 	fi
 
 	# Push up the data.  'curl' will wait no more than $MAX_CURL_TIME seconds for upload to complete
-	CURL=$(cat $NEWFILE | gzip | curl -m $MAX_CURL_TIME $CURL_EXTRA -sS -X POST -H "ADSBX_UUID: ${UUID}" -H "Content_Encoding: gzip" --data-binary @- $REMOTE_URL 2>&1 )
+	CURL=$(cat $NEWFILE | gzip | curl -m $MAX_CURL_TIME $CURL_EXTRA -sS -X POST -H "adsbx-uuid: ${UUID}" -H "Content_Encoding: gzip" --data-binary @- $REMOTE_URL 2>&1 )
 	RV=$?
 
 	if [ $RV -ne 0 ]; then
