@@ -248,6 +248,9 @@ NEXT_JSON_READ=1
 # How long to wait before uploads, minimum (in seconds)
 WAIT_TIME=5
 
+# random sleep on startup ... reduce load spikes
+sleep "$(( RANDOM % WAIT_TIME )).$(( RANDOM % 100))"
+
 # How long curl will wait to send data (10 sec default)
 MAX_CURL_TIME=10
 
