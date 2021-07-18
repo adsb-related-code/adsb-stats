@@ -34,7 +34,7 @@ if [ -r /etc/default/adsbexchange-stats ]; then
 	# If 'USE_OLD_PATH' is set, override the entire list
 	if [ "x$USE_OLD_PATH" != "x" ] && [ $USE_OLD_PATH -eq 1 ]; then
 		echo "Note: 'USE_OLD_PATH' is set."
-		JSON_PATHS=("/run/adsbexchange-feed" "/run/readsb" "/run/dump1090-fa" "/run/dump1090-mutability" "/run/dump1090" )
+		JSON_PATHS=("/run/readsb" "/run/adsbexchange-feed")
 	fi
 fi
 
