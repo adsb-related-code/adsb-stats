@@ -242,9 +242,6 @@ if [ $DIFF -gt 60 ]; then
 	echo "WARNING: $JSON_FILE seems old, are you sure we're using the right path?"
 fi
 
-# Set this to a number
-NEXT_JSON_READ=1
-
 # How long to wait before uploads, minimum (in seconds)
 WAIT_TIME=5
 
@@ -263,6 +260,11 @@ AGE_COMPLAIN=30
 AGE_INTERVAL=$(( 30 * 60 ))
 OLD_AGE=$AGE_COMPLAIN
 while true; do
+    wait
+    # make this loop from now to the next start last exactly $WAIT_TIME secons
+    # sleep in the background then wait for it at the end of the loop
+    sleep $WAIT_TIME &
+
     NOW=$(date +%s)
 
     # Grab new stat.  If it fails, wait longer (otherwise assign to the main var)
@@ -282,20 +284,9 @@ while true; do
         OLD_AGE=$AGE_COMPLAIN
     fi
 
-	if [ $JSON_STAT -lt $NEXT_JSON_READ ]; then
-        sleep 1
-        continue
-    fi
-
-	# Update this for the next loop
-	NEXT_JSON_READ=$(( JSON_STAT + $WAIT_TIME ))
-
-    # make this loop from now to the next start last exactly $WAIT_TIME secons
-    # sleep in the background then wait for it at the end of the loop
-    sleep $WAIT_TIME &
-
 	# Move the JSON somewhere before operating on it...
 
+	rm -f $TMPFILE $NEWFILE
 	CP=$(cp $JSON_FILE $TMPFILE 2>&1)
 	RV=$?
 	if [ $RV -ne 0 ]; then
@@ -348,14 +339,8 @@ while true; do
 	RV=$?
 
 	if [ $RV -ne 0 ]; then
-		echo "WARNING: curl process returned non-zero ($RV): [$CURL]"
-		echo "Sleeping a little extra."
+		echo "WARNING: curl process returned non-zero ($RV): [$CURL]; Sleeping a little extra."
 		sleep $(( 5 + RANDOM % 15 ))
 	fi
-
-    # wait on the earlier issued "sleep $WAIT_TIME &"
-    wait
-    # only delete the files after the waiting has happened, makes debugginn / inspection of the files easier
-	rm -f $TMPFILE $NEWFILE
 done
 
