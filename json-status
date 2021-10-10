@@ -59,6 +59,9 @@ if [ $RV -ne 0 ]; then
 fi
 
 
+# load bash sleep builtin if available
+[[ -f /usr/lib/bash/sleep ]] && enable -f /usr/lib/bash/sleep sleep || true
+
 # Do this a few times, in case we're still booting up (wait a bit between checks)
 CHECK_LOOP=0
 while [ "x$JSON_DIR" = "x" ]; do
@@ -334,8 +337,12 @@ while true; do
 		fi
 	fi
 
+    sleep 0.314
+    gzip -c <$NEWFILE >$TEMP_DIR/upload.gz
+    sleep 0.314
+
 	# Push up the data.  'curl' will wait no more than $MAX_CURL_TIME seconds for upload to complete
-	CURL=$(cat $NEWFILE | gzip | curl -m $MAX_CURL_TIME $CURL_EXTRA -sS -X POST -H "adsbx-uuid: ${UUID}" -H "Content_Encoding: gzip" --data-binary @- $REMOTE_URL 2>&1 )
+	curl -m $MAX_CURL_TIME $CURL_EXTRA -sS -X POST -H "adsbx-uuid: ${UUID}" -H "Content_Encoding: gzip" --data-binary @- $REMOTE_URL 2>&1 <$TEMP_DIR/upload.gz
 	RV=$?
 
 	if [ $RV -ne 0 ]; then

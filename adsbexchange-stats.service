@@ -14,7 +14,9 @@ StandardError=inherit
 Restart=always
 RestartSec=30
 User=adsbexchange
-Nice=5
+Nice=19
+IOSchedulingClass=idle
+
 
 [Install]
 WantedBy=multi-user.target

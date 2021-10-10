@@ -11,20 +11,25 @@ then
 fi
 
 # commands used
-COMMANDS="curl uuidgen jq inotifywait gzip host perl"
+COMMANDS="curl uuidgen jq gzip host perl"
 # corresponding packages
-PACKAGES="curl uuid-runtime jq inotify-tools gzip dnsutils perl"
+PACKAGES="curl uuid-runtime jq gzip dnsutils perl"
 
 for CMD in $COMMANDS; do
     if ! command -v $CMD &>/dev/null; then
         if command -v apt-get &>/dev/null; then
-            apt-get update
-            apt-get install -y $PACKAGES
+            apt-get update || true
+            apt-get install --no-install-suggests --no-install-recommends -y $PACKAGES || true
         elif command -v yum &>/dev/null; then
-            yum install -y curl util-linux jq inotify-tools gzip bind-utils perl
+            yum install -y curl util-linux jq inotify-tools gzip bind-utils perl || true
         fi
     fi
 done
+if ! [[ -f /usr/lib/bash/sleep ]];
+then
+    apt update || true
+    apt install -y --no-install-suggests --no-install-recommends bash-builtins || true
+fi
 
 mkdir -p /usr/local/bin
 cp adsbexchange-showurl /usr/local/bin/adsbexchange-showurl
