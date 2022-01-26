@@ -47,8 +47,6 @@ then
     echo "USE_OLD_PATH=1" > /etc/default/adsbexchange-stats
 fi
 
-bash $IPATH/create-uuid.sh
-
 # copy the service file
 cp adsbexchange-stats.service /etc/systemd/system/adsbexchange-stats.service
 
@@ -59,6 +57,14 @@ fi
 
 # enable service
 systemctl enable adsbexchange-stats.service
+
+
+# exit success for chroot
+if ischroot; then
+    exit 0
+fi
+
+bash $IPATH/create-uuid.sh
 
 # start service
 systemctl restart adsbexchange-stats.service
