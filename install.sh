@@ -10,25 +10,38 @@ then
     adduser --system --home $IPATH --no-create-home --quiet adsbexchange >/dev/null || adduser --system --home-dir $IPATH --no-create-home adsbexchange
 fi
 
+function aptInstall() {
+    if ! apt install -y --no-install-recommends --no-install-suggests "$@"; then
+        apt update
+        if ! apt install -y --no-install-recommends --no-install-suggests "$@"; then
+            apt clean -y || true
+            apt --fix-broken install -y || true
+            apt install --no-install-recommends --no-install-suggests -y $packages
+        fi
+    fi
+}
+
 # commands used
 COMMANDS="curl uuidgen jq gzip host perl"
 # corresponding packages
-PACKAGES="curl uuid-runtime jq gzip dnsutils perl"
+PACKAGES="curl uuid-runtime jq gzip dnsutils perl bash-builtins"
 
-for CMD in $COMMANDS; do
-    if ! command -v $CMD &>/dev/null; then
-        if command -v apt-get &>/dev/null; then
-            apt-get update || true
-            apt-get install --no-install-suggests --no-install-recommends -y $PACKAGES || true
-        elif command -v yum &>/dev/null; then
-            yum install -y curl util-linux jq inotify-tools gzip bind-utils perl || true
-        fi
-    fi
-done
+install=0
 if ! [[ -f /usr/lib/bash/sleep ]];
 then
-    apt update || true
-    apt install -y --no-install-suggests --no-install-recommends bash-builtins || true
+    install=1
+fi
+for CMD in $COMMANDS; do
+    if ! command -v $CMD &>/dev/null; then
+    install=1
+    fi
+done
+if [[ $install == 1 ]]; then
+    if command -v apt-get &>/dev/null; then
+        aptInstall $PACKAGES || true
+    elif command -v yum &>/dev/null; then
+        yum install -y curl util-linux jq inotify-tools gzip bind-utils perl || true
+    fi
 fi
 
 mkdir -p /usr/local/bin
