@@ -1,12 +1,9 @@
 [Unit]
 Description=ADSBexchange Stats
-After=adsbexchange-go.service
 
 [Service]
 Type=simple
 SyslogIdentifier=adsbexchange-stats
-PermissionsStartOnly=true
-ExecStartPre=/usr/local/share/adsbexchange-stats/create-uuid.sh
 ExecStart=/usr/local/share/adsbexchange-stats/json-status
 RuntimeDirectory=adsbexchange-stats
 StandardOutput=inherit

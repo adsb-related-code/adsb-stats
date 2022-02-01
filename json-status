@@ -29,6 +29,9 @@ JSON_PATHS=("/run/adsbexchange-feed")
 
 # UUID file
 UUID_FILE="/boot/adsbx-uuid"
+if [[ ! -f "$UUID_FILE" ]]; then
+    UUID_FILE="/usr/local/share/adsbexchange/adsbx-uuid"
+fi
 
 # source local overrides (commonly the JSON_PATH, or DNS cache settings)
 if [ -r /etc/default/adsbexchange-stats ]; then

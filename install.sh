@@ -84,7 +84,11 @@ systemctl restart adsbexchange-stats.service
 
 # output uuid
 echo "#####################################"
-cat /boot/adsbx-uuid
+UUID_FILE="/boot/adsbx-uuid"
+if ! [[ -f "$UUID_FILE" ]]; then
+    UUID_FILE="/usr/local/share/adsbexchange/adsbx-uuid"
+fi
+cat "$UUID_FILE"
 echo "#####################################"
-sed -e 's$^$https://www.adsbexchange.com/api/feeders/?feed=$' /boot/adsbx-uuid
+sed -e 's$^$https://www.adsbexchange.com/api/feeders/?feed=$' "$UUID_FILE"
 echo "#####################################"
