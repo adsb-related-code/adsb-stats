@@ -116,12 +116,6 @@ if [ "x$CURL_VER" = "x" ]; then
 	echo "FATAL - curl is malfunctioning, can't get version info."
 	exit 11
 fi
-VER_OK=$( echo "$CURL_VER" | perl -ne '@v=split(/\./); if ($v[0] == 7) { if ($v[1] >= 22) { printf("1");exit; } else { printf("0");exit; } } if ($v[0] > 7) { pr
-intf("1");exit; } printf("0");exit;')
-if [ $VER_OK -ne 1 ]; then
-	echo "WARNING: curl version is too old ($CURL_VER < 7.22.0), not using script's DNS cache."
-	DNS_CACHE=0
-fi
 
 # This routine assumes you do no santiy-checking.
 #
@@ -207,12 +201,26 @@ if [ $LOCAL_RESOLVER -ne 0 ]; then
 	fi
 fi
 
+if ! command -v host &>/dev/null || ! command -v perl &>/dev/null; then
+    echo "host command or perl not available, disabling DNS Cache" >&2
+    DNS_CACHE=0
+fi
+
+VER_OK=$( echo "$CURL_VER" | perl -ne '@v=split(/\./); if ($v[0] == 7) { if ($v[1] >= 22) { printf("1");exit; } else { printf("0");exit; } } if ($v[0] > 7) { pr
+intf("1");exit; } printf("0");exit;')
+if [ $VER_OK -ne 1 ]; then
+	echo "WARNING: curl version is too old ($CURL_VER < 7.22.0), not using script's DNS cache."
+	DNS_CACHE=0
+fi
+
+
 # If we have a local resolver, just use the URL.  If not, look up the host and use that IP (replace the URL appropriately)
 # -- DNS Setup done
 
 
 echo "Using UUID [${UUID}] for stats uploads"
 echo "Using JSON directory [${JSON_DIR}] for source data"
+
 
 if [ $DNS_CACHE -ne 0 ]; then
 	echo "Using script's DNS cache ($DNS_TTL seconds)"

@@ -24,7 +24,7 @@ function aptInstall() {
 # commands used
 COMMANDS="curl uuidgen jq gzip host perl"
 # corresponding packages
-PACKAGES="curl uuid-runtime jq gzip dnsutils perl bash-builtins"
+PACKAGES="curl uuid-runtime jq gzip bind9-host perl bash-builtins"
 
 install=0
 if ! [[ -f /usr/lib/bash/sleep ]];
