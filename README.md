@@ -8,7 +8,7 @@ Stats only.  Be sure to install ADSBexchange.com feeder package first.
 ### STEP 1: FEEDER PACKAGE
 
 ```
-wget -O /tmp/axfeed.sh https://raw.githubusercontent.com/adsbxchange/adsb-exchange/master/install.sh
+curl -L -o /tmp/axfeed.sh https://adsbexchange.com/feed.sh
 sudo bash /tmp/axfeed.sh
 ```
 
